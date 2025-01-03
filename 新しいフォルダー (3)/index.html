@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // 再生中の効果音を管理する変数
+        let currentAudio = null;
+
+        function playSound(soundFile) {
+            // 既に再生中の音があれば停止してリセット
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+
+            // 新しいAudioオブジェクトを作成して再生
+            currentAudio = new Audio(soundFile);
+            currentAudio.play();
+        }
+    </script>
+</head>
+<body>
+    <img src="image/image1.png" alt="画像1" onclick="playSound('sound/sound1.wav')" style="width:200px; height:auto; cursor:pointer;">
+</body>
+</html>
