@@ -1,159 +1,620 @@
+<!doctype html>
 <html lang="ja">
 <head>
-    <style>    
-        a {
-            color:black;
-            text-decoration: none;
-        }
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px; /* グループ間のスペース */
-    }
-    .group {
-      width: 290px;
-      text-align: center;
-    }
-    .auto-wrap {
-      width: 290px;
-      white-space: normal;
-      overflow: hidden;
-      text-align: center;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      display: -ms-flexbox;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      line-clamp: 2;
-      box-orient: vertical;
-    }
-    .group2 {
-      width: 200px;
-      text-align: center;
-    }
-    .auto-wrap2 {
-      width: 200px;
-      white-space: normal;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      display: -ms-flexbox;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      line-clamp: 2;
-      box-orient: vertical;
-    }
-    .pic {
-      border-radius: 7px;
-    }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>段位道場 外伝風 一覧</title>
+  <style>
     body {
-        font-family: "DFPKanteiryu", sans-serif;
+      margin: 0;
+      font-family: "Noto Sans JP", sans-serif;
+      background: #f5f7fa;
+      color: #222;
+      padding: 20px;
     }
-    .container1 {
-            position: relative;
-            display: inline-block;
-        }
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 24px;
+      color: #0d572f;
+    }
 
-        .container {
-           display: flex;
-           flex-wrap: wrap;
-           gap: 5px; /* グループ間のスペース */
-        }
+    .list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      max-width: 723px;
+      margin: 0 auto;
+    }
 
-        .container2 {
-            width: 300px;
-            padding: 10px;
-            border: 5px solid #e8e8e8;
-            border-radius: 7px;
-            outline: 2px solid black;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            background-color: #e8e8e8;
+    .card {
+      --collapsed-height: 80px;
+      --expanded-max-height: 800px;
+      background: #107b5c;
+      border-radius: 12px;
+      border: 3px solid #000000;
+      box-shadow: 0 4px 10px rgba(0,0,0,.1);
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease;
+      overflow: hidden;
+    }
+    .card:hover { transform: scale(1.02); box-shadow: 0 8px 18px rgba(0,0,0,.18); }
+    .card:focus-visible { outline: 3px solid #16a34a; }
 
-        }
-        .top {
-            display: flex;
-            align-items: start;
-        }
-        .top img {
-            width: 20px;
-            height: auto;
-        }
-        .bottom {
-            display: flex;
-            align-items: center;
-        }
-        .bottom img {
-            width: 100px;
-            height: 75px;
-            object-fit: cover;
-        }
+    .wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      max-height: var(--collapsed-height);
+      transition: max-height .3s ease, padding .25s ease;
+    }
+    .card.expanded .wrap {
+      max-height: var(--expanded-max-height);
+      padding: 16px;
+    }
 
-        .image {
-            display: block;
-            width: 290px;
-            height: auto;
-        }
-        .text-overlay {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            background: rgba(0, 0, 0, 0.65);
-            color: white;
-            padding: 5px 5px;
-            border-radius: 5px;
-            font-size: 12px;
-        }
-        .text-below {
-            text-align: center;
-            font-size: 16px;
-            margin-top: 5px;
-        }
+    .thumb {
+      flex: 0 0 100px;
+      height: 60px;
+      border-radius: 8px;
+      background: #e0fce8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-        .title:hover {
-          filter: alpha(opacity=70);
-          -moz-opacity: 0.7;
-          opacity: 0.7;
-        }
-    </style>
-    <title>Nani!?</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    .meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .title {
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+    .desc {
+      font-size: 13px;
+      color: #555;
+    }
+
+    .chev {
+      flex: 0 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .3s ease;
+    }
+    .card.expanded .chev { transform: rotate(180deg); }
+
+    .details {
+      display: none;
+      padding: 0 16px 16px 16px;
+      border-top: 1px solid #e5e7eb;
+      background: #faf3e0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .card.expanded .details { display: block; }
+
+    ul.song-list {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0;
+    }
+    ul.song-list li {
+      margin-bottom: 6px;
+      padding: 6px 10px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 30px;
+    }
+
+    @media (max-width: 600px) {
+      .wrap { flex-direction: column; align-items: flex-start; }
+      .thumb { width: 100%; height: 120px; }
+      .meta { width: 100%; }
+    }
+    @font-face {
+              font-family: 'Open Sans Regular';
+              src: url('chrome-extension://gkkdmjjodidppndkbkhhknakbeflbomf/fonts/open_sans/open-sans-v18-latin-regular.woff');
+          }
+    .box{
+      border: 3px solid #4f3c2c;
+      border-radius: 10px;
+      position: relative;
+      margin-top: 1em;
+    }
+    .box h3{
+      position: absolute;
+      right: 0;
+      left: 0;
+      top: -2.3em;
+      margin-left: 1em;
+    }
+    .box span{
+      padding: 0 .5em;
+      background: #4f3c2c;
+      color: #FFF;
+      display: inline-block;
+      border-radius: 5px;
+    }
+
+    .exam-type {
+            display:block;
+            width: calc(100% - 30px);
+            margin: 0 15px;
+            box-sizing:border-box;
+            font-size:25px;
+            text-align:left;           
+            border-radius:20px;
+            padding:15px;
+    }
+    .title {
+      cursor: pointer;  /* タイトルだけ指カーソル */
+    }
+
+    .card, .wrap, .details, .inner, ul.song-list li, .exam-type {
+      cursor: default;  /* 他は通常の矢印 */
+    }
+    .title:hover {
+      filter: alpha(opacity=70);
+      -moz-opacity: 0.7;
+      opacity: 0.7;
+    }
+  </style>
 </head>
-<body style="background-image: url(https://nanisan0723.github.io/Nanisan-blog-test/background.png);">
-    <a href="https://nanisan0723.github.io/Nanisan-blog-test/UQPKU2oTlis"><img src="https://nanisan0723.github.io/Nanisan-blog-test/新しいフォルダー/DanLogo.png" width="300" height="auto" class="title"></a>
-    <h1></h1>
-  <div class="container">
-    <a href="新しいフォルダー/なにさん的創作譜面七段.zip">
-      <div class="container1">
-        <img src="新しいフォルダー/4.png" class="image pic">
-        <div class="text-overlay">★8</div>
-      </div>
-    <p class="auto-wrap">僕の内訳 可:269 不可:29 連打:88</p>
-    </a>
-    <div style="opacity: 10%;">
-    <a href="新しいフォルダー/打倒！織田信長.zip">
-      <div class="container1">
-        <img src="新しいフォルダー/3.png" class="image pic">
-        <div class="text-overlay">★10</div>
-      </div>
-    <p class="auto-wrap">打倒！織田信長</p>
-    </a>
-    </div>
-    <a href="新しいフォルダー/課題曲、すべて作ってみた。.zip">
-      <div class="container1">
-        <img src="新しいフォルダー/2.png" class="image pic">
-        <div class="text-overlay">★10</div>
-      </div>
-    <p class="auto-wrap">課題曲、すべて作ってみた。</p>
-    </a>
-    <a href="新しいフォルダー/なにさんによる創作段位&譜面.zip">
-      <div class="container1">
-        <img src="新しいフォルダー/1.png" class="image pic">
-        <div class="text-overlay">★10</div>
-      </div>
-    <p class="auto-wrap">なにさんによる創作段位&譜面</p>
-    </a>
+<body style="background-image: url(background.png);">
+  <a href="https://taiko.namco-ch.net/taiko/special/dani_dojo_gaiden/list.php" style="display:flex; justify-content:center;">
+    <img src="新しいフォルダー/Logo.png">
+  </a>
+          <h1 style="font-size: 20px;">ㅤ</h1>
+  <div style="display:flex; justify-content:center;">
+    <img src="https://taiko.namco-ch.net/taiko/images/special/dani_dojo_gaiden/stit_themelist.png">
   </div>
+          <h1 style="font-size: 20px;">QRコードをクリックすればダウンロードされます</h1>
+      <div class="list">
+    <div class="card" type="button" aria-expanded="false">
+      <div class="wrap">
+        <div class="meta">
+          <div class="title" style="font-size: 35px; text-align: center;"><span style="background-color: #e73d00; padding: 2px;">NEW</span> 裏！なにさん(723)的創作譜面七段</div>
+        </div>
+        <div class="chev" style="color: white; font-size: 25px;">▼</div>
+      </div>
+      <div class="details">
+        <ul class="song-list">
+          <h1 style="font-size: 20px;">ㅤ</h1>
+            <a href="新しいフォルダー/裏!なにさん的創作譜面七段.zip"><img src="新しいフォルダー/QR/5.png"  style="display:block; margin:0 auto;"></a>
+          <h1 style="font-size: 20px;">ㅤ</h1>
+              <li style="display: flex; align-items: center; text-align: left;">
+                  <img src="新しいフォルダー/1st.png" style="margin-right: 4px;">
+                  <img src="新しいフォルダー/Oni/9.png" style="width: auto; height: 66px; margin-right: 8px;">
+                  <span style="font-size: 40px;">G意識過剰</span>
+              </li>
+              <li style="display: flex; align-items: center; text-align: left;">
+                  <img src="新しいフォルダー/2nd.png" style="margin-right: 4px;">
+                  <img src="新しいフォルダー/Oni/9.png" style="width: auto; height: 66px; margin-right: 8px;">
+                  <span style="font-size: 40px;">太鼓侍</span>
+              </li>
+              <li style="display: flex; align-items: center; text-align: left;">
+                  <img src="新しいフォルダー/3rd.png" style="margin-right: 4px;">
+                  <img src="新しいフォルダー/Oni/9.png" style="width: auto; height: 66px; margin-right: 8px;">
+                  <span style="font-size: 40px;">ニジイロバトン</span>
+              </li>
+              <h1 style="font-size: 20px;">ㅤ</h1>
+          </ul>
+            <div class="box">
+              <h3><span style="font-size: 23px;">お題情報</span></h3>
+              <h1 style="font-size: 7px;">ㅤ</h1>
+            <div class="inner" style="width:100%;">
+              <dl style="margin:0; padding:0; width:100%;">
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">魂ゲージ</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">100%以上</div>
+                </li>
+                  <h1 style="font-size: 12px;">ㅤ</h1>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">可の数</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/1st.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>120未満</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/2nd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>190未満</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/3rd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>180未満</div>
+                </li>
+                  <h1 style="font-size: 12px;">ㅤ</h1>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">不可の数</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">45未満</div>
+                </li>
+                  <h1 style="font-size: 12px;">ㅤ</h1>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">連打数</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/1st.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>128以上</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/2nd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>75以上</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/3rd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>256以上</div>
+                </li>
+              </dl>
+            </div>
+            </div>
+          </ul>
+
+              <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#4f3c2c; color:#ffffff">補足説明</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">
+                    楽しかったです。（#^ω^）
+                  </div>
+              </li>
+
+  </div>
+  </div>
+  </div>
+
+    <h1 style="font-size: 5px;">ㅤ</h1>
+
+      <div class="list">
+    <div class="card" type="button" aria-expanded="false">
+      <div class="wrap">
+        <div class="meta">
+          <div class="title" style="font-size: 35px; text-align: center;">なにさん(723)的創作譜面七段</div>
+        </div>
+        <div class="chev" style="color: white; font-size: 25px;">▼</div>
+      </div>
+      <div class="details">
+        <ul class="song-list">
+          <h1 style="font-size: 20px;">ㅤ</h1>
+            <a href="新しいフォルダー/なにさん的創作譜面七段.zip"><img src="新しいフォルダー/QR/4.png"  style="display:block; margin:0 auto;"></a>
+          <h1 style="font-size: 20px;">ㅤ</h1>
+              <li style="display: flex; align-items: center; text-align: left;">
+                  <img src="新しいフォルダー/1st.png" style="margin-right: 4px;">
+                  <img src="新しいフォルダー/Oni/9.png" style="width: auto; height: 66px; margin-right: 8px;">
+                  <span style="font-size: 40px;">PONPOKO RHYTHM</span>
+              </li>
+              <li style="display: flex; align-items: center; text-align: left;">
+                  <img src="新しいフォルダー/2nd.png" style="margin-right: 4px;">
+                  <img src="新しいフォルダー/Oni/9.png" style="width: auto; height: 66px; margin-right: 8px;">
+                  <span style="font-size: 40px;">夢幻の蒼空</span>
+              </li>
+              <li style="display: flex; align-items: center; text-align: left;">
+                  <img src="新しいフォルダー/3rd.png" style="margin-right: 4px;">
+                  <img src="新しいフォルダー/Oni/9.png" style="width: auto; height: 66px; margin-right: 8px;">
+                  <span style="font-size: 40px;">mint tears</span>
+              </li>
+              <h1 style="font-size: 20px;">ㅤ</h1>
+          </ul>
+            <div class="box">
+              <h3><span style="font-size: 23px;">お題情報</span></h3>
+              <h1 style="font-size: 7px;">ㅤ</h1>
+            <div class="inner" style="width:100%;">
+              <dl style="margin:0; padding:0; width:100%;">
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">魂ゲージ</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">100%以上</div>
+                </li>
+                  <h1 style="font-size: 12px;">ㅤ</h1>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">可の数</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">325未満</div>
+                </li>
+                  <h1 style="font-size: 12px;">ㅤ</h1>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">不可の数</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">45未満</div>
+                </li>
+                  <h1 style="font-size: 12px;">ㅤ</h1>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">連打数</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/1st.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>3以上</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/2nd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>27以上</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/3rd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>37以上</div>
+                </li>
+              </dl>
+            </div>
+            </div>
+          </ul>
+
+              <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#4f3c2c; color:#ffffff">補足説明</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">
+                    楽しかったです。
+                  </div>
+              </li>
+  </div>
+  </div>
+  </div>
+
+  
+  <h1 style="font-size: 5px;">ㅤ</h1>
+
+    <div class="list">
+    <div class="card" type="button" aria-expanded="false">
+      <div class="wrap">
+        <div class="meta">
+          <div class="title" style="font-size: 35px; text-align: center;">達人(???)課題曲、すべて作ってみた。</div>
+        </div>
+        <div class="chev" style="color: white; font-size: 25px;">▼</div>
+      </div>
+      <div class="details">
+        <ul class="song-list">
+          <h1 style="font-size: 20px;">ㅤ</h1>
+            <a href="課題曲、すべて作ってみた。.zip"><img src="新しいフォルダー/QR/2.png"  style="display:block; margin:0 auto;"></a>
+          <h1 style="font-size: 20px;">ㅤ</h1>
+              <li style="display: flex; align-items: center; text-align: left;">
+                  <img src="新しいフォルダー/1st.png" style="margin-right: 4px;">
+                  <img src="新しいフォルダー/Edit/10.png" style="width: auto; height: 66px; margin-right: 8px;">
+                  <span style="font-size: 40px;">???</span>
+              </li>
+              <li style="display: flex; align-items: center; text-align: left;">
+                  <img src="新しいフォルダー/2nd.png" style="margin-right: 4px;">
+                  <img src="新しいフォルダー/Edit/10.png" style="width: auto; height: 66px; margin-right: 8px;">
+                  <span style="font-size: 40px;">The Future of the 太鼓ドラム</span>
+              </li>
+              <li style="display: flex; align-items: center; text-align: left;">
+                  <img src="新しいフォルダー/3rd.png" style="margin-right: 4px;">
+                  <img src="新しいフォルダー/Edit/10.png" style="width: auto; height: 66px; margin-right: 8px;">
+                  <span style="font-size: 40px;">???</span>
+              </li>
+              <h1 style="font-size: 20px;">ㅤ</h1>
+          </ul>
+            <div class="box">
+              <h3><span style="font-size: 23px;">お題情報</span></h3>
+              <h1 style="font-size: 7px;">ㅤ</h1>
+            <div class="inner" style="width:100%;">
+              <dl style="margin:0; padding:0; width:100%;">
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">魂ゲージ</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">100%以上</div>
+                </li>
+                  <h1 style="font-size: 12px;">ㅤ</h1>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">可の数</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/1st.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>32未満</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/2nd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>58未満</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/3rd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>27未満</div>
+                </li>
+                  <h1 style="font-size: 12px;">ㅤ</h1>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">不可の数</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/1st.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>25未満</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/2nd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>58未満</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/3rd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>25未満</div>
+                </li>
+                  <h1 style="font-size: 12px;">ㅤ</h1>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">連打数</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/1st.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>3以上</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/2nd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>27以上</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/3rd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>37以上</div>
+                </li>
+              </dl>
+            </div>
+            </div>
+          </ul>
+
+              <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#4f3c2c; color:#ffffff">補足説明</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">
+                    クソ譜面って、自分で気づかないんですよね。
+                  </div>
+              </li>
+  </div>
+  </div>
+  </div>
+
+  
+  <h1 style="font-size: 5px;">ㅤ</h1>
+
+  
+  <div class="list">
+    <div class="card" type="button" aria-expanded="false">
+      <div class="wrap">
+        <div class="meta">
+          <div class="title" style="font-size: 35px; text-align: center;">なにさんによる創作段位&譜面</div>
+        </div>
+        <div class="chev" style="color: white; font-size: 25px;">▼</div>
+      </div>
+      <div class="details">
+        <ul class="song-list">
+          <h1 style="font-size: 20px;">ㅤ</h1>
+            <a href="なにさんによる創作段位&譜面.zip"><img src="新しいフォルダー/QR/1.png"  style="display:block; margin:0 auto;"></a>
+          <h1 style="font-size: 20px;">ㅤ</h1>
+              <li style="display: flex; align-items: center; text-align: left;">
+                  <img src="新しいフォルダー/1st.png" style="margin-right: 4px;">
+                  <img src="新しいフォルダー/Edit/10.png" style="width: auto; height: 66px; margin-right: 8px;">
+                  <span style="font-size: 40px;">???</span>
+              </li>
+              <li style="display: flex; align-items: center; text-align: left;">
+                  <img src="新しいフォルダー/2nd.png" style="margin-right: 4px;">
+                  <img src="新しいフォルダー/Edit/10.png" style="width: auto; height: 66px; margin-right: 8px;">
+                  <span style="font-size: 40px;">???</span>
+              </li>
+              <li style="display: flex; align-items: center; text-align: left;">
+                  <img src="新しいフォルダー/3rd.png" style="margin-right: 4px;">
+                  <img src="新しいフォルダー/Edit/10.png" style="width: auto; height: 66px; margin-right: 8px;">
+                  <span style="font-size: 40px;">???</span>
+              </li>
+              <h1 style="font-size: 20px;">ㅤ</h1>
+          </ul>
+            <div class="box">
+              <h3><span style="font-size: 23px;">お題情報</span></h3>
+              <h1 style="font-size: 7px;">ㅤ</h1>
+            <div class="inner" style="width:100%;">
+              <dl style="margin:0; padding:0; width:100%;">
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">魂ゲージ</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">98%以上</div>
+                </li>
+                  <h1 style="font-size: 12px;">ㅤ</h1>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">可の数</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">20未満</div>
+                </li>
+                  <h1 style="font-size: 12px;">ㅤ</h1>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">不可の数</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">8未満</div>
+                </li>
+                  <h1 style="font-size: 12px;">ㅤ</h1>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#f4dbac;">連打数</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/1st.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>120以上</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/2nd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>150以上</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%; display: flex; align-items: center; text-align: left; background-color:#fffffc;" class="exam-type">
+                  <img src="新しいフォルダー/3rd.png" style="margin-right: 4px; width: 30px; height: auto;">
+                  <div>100以上</div>
+                </li>
+              </dl>
+            </div>
+            </div>
+          </ul>
+
+              <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#4f3c2c; color:#ffffff">補足説明</div>
+                </li>
+                <li style="list-style:none; margin:15px 0; padding:0; width:100%;">
+                  <div class="exam-type" style="background-color:#fffffc;">
+                    うーん、平等院鳳凰ドン裏以外ゴミ
+                  </div>
+              </li>
+  </div>
+  </div>
+  </div>
+
+  <script>
+(function(){
+  const cards = document.querySelectorAll('.card');
+
+  function toggleCard(card){
+    const isOpen = card.classList.contains('expanded');
+    cards.forEach(c => { 
+      c.classList.remove('expanded'); 
+      c.setAttribute('aria-expanded','false'); 
+    });
+    if(!isOpen){
+      card.classList.add('expanded');
+      card.setAttribute('aria-expanded','true');
+    }
+  }
+
+  cards.forEach(card => {
+    const title = card.querySelector('.title');
+    if(!title) return;
+
+    title.style.cursor = 'pointer'; // タイトルにカーソルを出す
+
+    title.addEventListener('click', (e) => {
+      e.stopPropagation(); // 親へのクリック伝播を止める
+      toggleCard(card);
+    });
+
+    title.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleCard(card);
+      }
+    });
+  });
+
+  // カード外クリックで閉じる挙動はそのまま
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('.card')){
+      cards.forEach(c => {
+        c.classList.remove('expanded');
+        c.setAttribute('aria-expanded','false');
+      });
+    }
+  });
+})();
+  </script>
 </body>
 </html>
