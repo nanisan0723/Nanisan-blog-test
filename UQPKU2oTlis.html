@@ -170,6 +170,22 @@
       -moz-opacity: 0.7;
       opacity: 0.7;
     }
+
+    .flex {
+      display: flex; /*横並び*/
+    }
+    .flex .image {
+      width: 60px; /*画像サイズ指定*/
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .flex .text {
+      margin: 0 0 0 20px;
+      padding: 0;
+    }
+
   </style>
 </head>
 <body style="background-image: url(background.png);">
@@ -185,7 +201,10 @@
     <div class="card" type="button" aria-expanded="false">
       <div class="wrap">
         <div class="meta">
-          <div class="title" style="font-size: 35px; text-align: center;"><span style="background-color: #e73d00; padding: 2px;">NEW</span> 裏！なにさん(723)的創作譜面七段</div>
+      <div class="flex">
+        <figure class="image"><img src="新しいフォルダー/新しいフォルダー/1.png" width="60" height="auto"></figure>
+          <p class="title text" style="font-size: 35px; text-align: center;">裏！なにさん(723)的創作譜面七段</p>
+      </div>
         </div>
         <div class="chev" style="color: white; font-size: 25px;">▼</div>
       </div>
@@ -212,7 +231,7 @@
               <h1 style="font-size: 20px;">ㅤ</h1>
           </ul>
             <div class="box">
-              <h3><span style="font-size: 23px;">お題情報</span></h3>
+             <h3><span style="font-size: 23px;">お題情報</span></h3>
               <h1 style="font-size: 7px;">ㅤ</h1>
             <div class="inner" style="width:100%;">
               <dl style="margin:0; padding:0; width:100%;">
@@ -285,7 +304,10 @@
     <div class="card" type="button" aria-expanded="false">
       <div class="wrap">
         <div class="meta">
-          <div class="title" style="font-size: 35px; text-align: center;">なにさん(723)的創作譜面七段</div>
+      <div class="flex">
+        <figure class="image"><img src="新しいフォルダー/新しいフォルダー/1.png" width="60" height="auto"></figure>
+          <p class="title text" style="font-size: 35px; text-align: center;">なにさん(723)的創作譜面七段</p>
+      </div>
         </div>
         <div class="chev" style="color: white; font-size: 25px;">▼</div>
       </div>
